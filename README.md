@@ -4,22 +4,30 @@ This is a simple Streamlit application that allows users to send messages to a c
 
 ## Setup
 
-1. Install dependencies:
+1. Get last milvus docker image
    ```
-   pip install -r requirements.txt
+   docker pull milvusdb/milvus:latest
+   ```
+2. Start milvus server
+   ```
+   docker run -d --name milvus-standalone -p 19530:19530 -p 19121:19121 milvusdb/milvus:latest
+   ```
+3. Install dependencies:
+   ```
+   python -m pip install -r requirements.txt
    ```
 
-2. Run the chatbot server:
+4. Run the chatbot server:
    ```
    python server.py
    ```
 
-3. In a new terminal, run the Streamlit app:
+5. In a new terminal, run the Streamlit app:
    ```
-   streamlit run app.py
+   python -m streamlit run app.py
    ```
 
-4. Open the Streamlit app in your browser (usually at http://localhost:8501).
+6. Open the Streamlit app in your browser (usually at http://localhost:8501).
 
 ## Usage
 
