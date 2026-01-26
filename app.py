@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from datetime import datetime
 
-st.title("Assistant Droit des affaires.")
+st.title("Bot Assistant Droit des affaires")
 
 # Initialize session state for message history
 if "messages" not in st.session_state:
@@ -22,7 +22,6 @@ def display_error_in_console(error_message, user_message, error_type):
 
 
 def send_error_notification(error_details):
-    """Notification suite au clic utilisateur sur le bouton."""
     print("=" * 60)
     print("🔔 CONTACT ADMINISTRATEUR - ACTION UTILISATEUR")
     print("=" * 60)
@@ -35,27 +34,25 @@ def send_error_notification(error_details):
     print(f"Détails de l'erreur: {error_details['error']}")
     print(f"Horodatage erreur: {error_details['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"URL Backend: http://localhost:5000/chat")
-    print("⚠️ L'UTILISATEUR A DEMANDÉ DE L'AIDE VIA LE BOUTON")
     print("=" * 60)
 
 
 def handle_backend_error(user_message, error_details, error_type):
-    """Gère les erreurs backend avec un message convivial."""
-    # Message convivial pour l'utilisateur
+    # Better error message for user
     error_msg = (
         "Je suis désolé, mais le service est actuellement indisponible. "
         "Veuillez réessayer dans quelques instants. Si le problème persiste, "
         "vous pouvez contacter l'administrateur."
     )
 
-    # Ajouter à l'historique
+    # Add message
     st.session_state.messages.append({"role": "assistant", "content": error_msg})
 
-    # Afficher dans l'interface
+    # Display message
     with st.chat_message("assistant"):
         st.markdown(error_msg)
 
-    # Stocker les détails pour le bouton de contact
+    # Store details for user action
     st.session_state.error_details = {
         "user_message": user_message,
         "error": error_details,
@@ -63,8 +60,7 @@ def handle_backend_error(user_message, error_details, error_type):
         "timestamp": datetime.now()
     }
 
-    # Log automatiquement dans la console
-    send_error_notification(error_details, user_message, error_type)
+    display_error_in_console(error_details, user_message, error_type)
 
 
 # Display all previous messages in chronological order (oldest first)
@@ -116,5 +112,5 @@ if prompt := st.chat_input("Que puis-je pour vous ?"):
 # Display contact button if error exists
 if st.session_state.error_details:
     if st.button("📧 Contacter l'administrateur"):
-        send_error_notification_with_user_action(st.session_state.error_details)
+        send_error_notification(st.session_state.error_details)
         st.success("✅ Notification envoyée à l'administrateur")

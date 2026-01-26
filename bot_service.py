@@ -90,3 +90,26 @@ def bot_health_check():
         "vector_store_ready": vector_store is not None,
         "documents_indexed": vector_store.collection.num_entities if vector_store else 0
     }
+
+def upload_document(file_path, file_type):
+    from pathlib import Path
+
+    if vector_store is None:
+        raise RuntimeError("Vector store not initialized")
+
+    try:
+        path = Path(file_path)
+        num_chunks = vector_store.index_single_file(path, file_type)
+
+        return {
+            "success": True,
+            "message": f"Successfully indexed {num_chunks} chunks from {path.name}",
+            "chunks_indexed": num_chunks,
+            "total_documents": vector_store.collection.num_entities
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Error indexing document: {str(e)}",
+            "chunks_indexed": 0
+        }

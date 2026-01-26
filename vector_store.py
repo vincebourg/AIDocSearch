@@ -271,6 +271,53 @@ class VectorStore:
         print(f"Successfully indexed {len(documents)} document chunks")
         print(f"Collection now contains {self.collection.num_entities} documents")
 
+    def index_single_file(self, file_path: Path, file_type: str) -> int:
+        """
+        Index a single file into Milvus.
+
+        Args:
+            file_path: Path to the file
+            file_type: Type of file ('txt', 'html', 'csv')
+
+        Returns:
+            Number of chunks indexed
+        """
+        print(f"Loading {file_path.name}...")
+
+        # Load document based on file type
+        if file_type == 'txt':
+            documents = self._load_text_file(file_path)
+        elif file_type == 'html':
+            documents = self._load_html_file(file_path)
+        elif file_type == 'csv':
+            documents = self._load_csv_file(file_path)
+        else:
+            raise ValueError(f"Unsupported file type: {file_type}")
+
+        if not documents:
+            print("No content found in file.")
+            return 0
+
+        print(f"Loaded {len(documents)} chunks from {file_path.name}")
+
+        # Generate embeddings
+        texts = [doc["text"] for doc in documents]
+        sources = [doc["source"] for doc in documents]
+
+        print("Generating embeddings...")
+        embeddings = self._generate_embeddings(texts)
+
+        # Insert into Milvus
+        print("Inserting documents into Milvus...")
+        entities = [texts, sources, embeddings]
+        self.collection.insert(entities)
+        self.collection.flush()
+
+        print(f"Successfully indexed {len(documents)} chunks")
+        print(f"Collection now contains {self.collection.num_entities} documents")
+
+        return len(documents)
+
     def search(self, query: str, top_k: int = 3) -> List[Dict[str, str]]:
         """
         Search for relevant documents using semantic similarity.
