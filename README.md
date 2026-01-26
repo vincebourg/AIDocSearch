@@ -2,20 +2,30 @@
 
 This is a simple Streamlit application that allows users to send messages to a chatbot via a REST API.
 
+## Prerequisites
+
+1. **Python 3.8+** installed
+2. **OpenAI API key** with access to embeddings and chat models
+
 ## Setup
 
-1. Get last milvus docker image
+1. Start milvus server
+   on windows:
    ```
-   docker pull milvusdb/milvus:latest
+   ./standalone_embed.bat start
    ```
-2. Start milvus server
+   OR
+   on other shells:
    ```
-   docker run -d --name milvus-standalone -p 19530:19530 -p 19121:19121 milvusdb/milvus:latest
+   ./standalone_embed.sh start
    ```
-3. Install dependencies:
+2. Install dependencies:
    ```
    python -m pip install -r requirements.txt
    ```
+
+3. Environment variables
+   Duplicate .env.sample into .env and add your OpenAI API Key.
 
 4. Run the chatbot server:
    ```
@@ -34,8 +44,3 @@ This is a simple Streamlit application that allows users to send messages to a c
 - Enter a message in the text input.
 - Click "Send" to send the message to the chatbot.
 - The chatbot's response will be displayed below.
-
-## Notes
-
-- The chatbot server runs on http://localhost:5000.
-- The current chatbot implementation simply echoes the message. Replace the logic in `server.py` with your actual chatbot API.

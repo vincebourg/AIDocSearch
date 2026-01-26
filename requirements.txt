@@ -1,3 +1,7 @@
 streamlit
 flask
 requests
+pymilvus
+openai
+python-dotenv
+beautifulsoup4
