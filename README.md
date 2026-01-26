@@ -25,19 +25,20 @@ This is a simple Streamlit application that allows users to send messages to a c
    ```
 
 3. Environment variables
+   
    Duplicate .env.sample into .env and add your OpenAI API Key.
 
-4. Run the chatbot server:
+5. Run the chatbot server:
    ```
    python server.py
    ```
 
-5. In a new terminal, run the Streamlit app:
+6. In a new terminal, run the Streamlit app:
    ```
    python -m streamlit run app.py
    ```
 
-6. Open the Streamlit app in your browser (usually at http://localhost:8501).
+7. Open the Streamlit app in your browser (usually at http://localhost:8501).
 
 ## Usage
 
