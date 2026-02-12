@@ -1,0 +1,56 @@
+# Version control
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+
+# Virtual environments
+env/
+venv/
+ENV/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Documentation (except README)
+*.md
+!README.md
+
+# Docker
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+
+# Claude
+.claude
+
+# Environment files (will be passed via docker-compose)
+.env
+.env.sample
+
+# Data directories
+volumes/
+uploads/
+milvus_data/
+
+# Scripts
+standalone_embed.bat
+standalone_embed.sh
+test_vector_store.py
+
+# OS
+.DS_Store
+Thumbs.db

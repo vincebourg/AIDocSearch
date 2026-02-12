@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Flask REST API Server
+  aidocsearch-server:
+    container_name: aidocsearch-server
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_EMBEDDING_MODEL=${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+      - OPENAI_CHAT_MODEL=${OPENAI_CHAT_MODEL:-gpt-4o-mini}
+      - MILVUS_URI=${MILVUS_URI:-http://host.docker.internal:19530}
+    volumes:
+      # Development: mount source for hot reload
+      - ./server.py:/app/server.py
+      - ./bot_service.py:/app/bot_service.py
+      - ./vector_store.py:/app/vector_store.py
+      # Data folders
+      - ./data:/app/data:ro
+      - ./uploads:/app/uploads
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    networks:
+      - aidocsearch-network
+
+  # Streamlit UI Application
+  aidocsearch-app:
+    container_name: aidocsearch-app
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    environment:
+      - SERVER_URL=http://aidocsearch-server:5000
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    volumes:
+      # Development: mount source for hot reload
+      - ./app.py:/app/app.py
+      - ./pages:/app/pages
+    ports:
+      - "8501:8501"
+    depends_on:
+      - aidocsearch-server
+    restart: unless-stopped
+    networks:
+      - aidocsearch-network
+
+networks:
+  aidocsearch-network:
+    driver: bridge
