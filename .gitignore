@@ -5,3 +5,4 @@ volumes
 embedEtcd.yaml
 user.yaml
 .vscode
+node_modules
