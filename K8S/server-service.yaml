@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aidocsearch-server
+  namespace: aidocsearch
+  labels:
+    app: aidocsearch
+    component: server
+spec:
+  type: ClusterIP
+  selector:
+    app: aidocsearch
+    component: server
+  ports:
+  - name: http
+    port: 5000
+    targetPort: 5000
+    protocol: TCP

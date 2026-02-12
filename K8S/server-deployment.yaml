@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aidocsearch-server
+  namespace: aidocsearch
+  labels:
+    app: aidocsearch
+    component: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aidocsearch
+      component: server
+  template:
+    metadata:
+      labels:
+        app: aidocsearch
+        component: server
+    spec:
+      containers:
+      - name: server
+        image: aidocsearch-server:dev
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+          name: http
+          protocol: TCP
+
+        env:
+        # OpenAI API Key from Secret
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aidocsearch-secrets
+              key: OPENAI_API_KEY
+
+        # Configuration from ConfigMap
+        - name: MILVUS_URI
+          valueFrom:
+            configMapKeyRef:
+              name: aidocsearch-config
+              key: MILVUS_URI
+        - name: OPENAI_EMBEDDING_MODEL
+          valueFrom:
+            configMapKeyRef:
+              name: aidocsearch-config
+              key: OPENAI_EMBEDDING_MODEL
+        - name: OPENAI_CHAT_MODEL
+          valueFrom:
+            configMapKeyRef:
+              name: aidocsearch-config
+              key: OPENAI_CHAT_MODEL
+
+        # Python unbuffered mode for better logging
+        - name: PYTHONUNBUFFERED
+          value: "1"
+
+        volumeMounts:
+        # Data volume (legal documents)
+        - name: data-volume
+          mountPath: /app/data
+
+        # Uploads volume (temporary files)
+        - name: uploads-volume
+          mountPath: /app/uploads
+
+        # Hot-reload: Mount source code from Minikube mount
+        - name: source-code
+          mountPath: /app/server.py
+          subPath: server.py
+        - name: source-code
+          mountPath: /app/bot_service.py
+          subPath: bot_service.py
+        - name: source-code
+          mountPath: /app/vector_store.py
+          subPath: vector_store.py
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+
+        # Liveness probe: Is the process running?
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+
+        # Readiness probe: Is the app ready to serve traffic?
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+      volumes:
+      # Persistent volume for data
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: aidocsearch-data
+
+      # Persistent volume for uploads
+      - name: uploads-volume
+        persistentVolumeClaim:
+          claimName: aidocsearch-uploads
+
+      # Hot-reload: Source code from Minikube mount
+      - name: source-code
+        hostPath:
+          path: /mnt/aidocsearch
+          type: Directory

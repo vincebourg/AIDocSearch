@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aidocsearch-app
+  namespace: aidocsearch
+  labels:
+    app: aidocsearch
+    component: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aidocsearch
+      component: app
+  template:
+    metadata:
+      labels:
+        app: aidocsearch
+        component: app
+    spec:
+      containers:
+      - name: app
+        image: aidocsearch-app:dev
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8501
+          name: http
+          protocol: TCP
+
+        env:
+        # Server URL from ConfigMap
+        - name: SERVER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: aidocsearch-config
+              key: SERVER_URL
+
+        # Streamlit configuration
+        - name: STREAMLIT_SERVER_PORT
+          value: "8501"
+        - name: STREAMLIT_SERVER_ADDRESS
+          value: "0.0.0.0"
+        - name: STREAMLIT_SERVER_HEADLESS
+          value: "true"
+        - name: STREAMLIT_BROWSER_GATHER_USAGE_STATS
+          value: "false"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+
+        volumeMounts:
+        # Hot-reload: Mount source code from Minikube mount
+        - name: source-code
+          mountPath: /app/app.py
+          subPath: app.py
+        - name: source-code
+          mountPath: /app/pages
+          subPath: pages
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        # Liveness probe: Is the process running?
+        livenessProbe:
+          httpGet:
+            path: /_stcore/health
+            port: 8501
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+
+        # Readiness probe: Is the app ready to serve traffic?
+        readinessProbe:
+          httpGet:
+            path: /_stcore/health
+            port: 8501
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+      volumes:
+      # Hot-reload: Source code from Minikube mount
+      - name: source-code
+        hostPath:
+          path: /mnt/aidocsearch
+          type: Directory

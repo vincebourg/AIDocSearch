@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aidocsearch-config
+  namespace: aidocsearch
+  labels:
+    app: aidocsearch
+data:
+  # Milvus connection - using host.minikube.internal to access host Docker
+  MILVUS_URI: "http://host.minikube.internal:19530"
+
+  # OpenAI model configuration
+  OPENAI_EMBEDDING_MODEL: "text-embedding-3-small"
+  OPENAI_CHAT_MODEL: "gpt-4o-mini"
+
+  # Internal server URL for app-to-server communication
+  SERVER_URL: "http://aidocsearch-server:5000"

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: aidocsearch-uploads
+  namespace: aidocsearch
+  labels:
+    app: aidocsearch
+    component: uploads
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  # Using default storage class (hostPath on Minikube)
