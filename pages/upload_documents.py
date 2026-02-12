@@ -1,5 +1,9 @@
 import streamlit as st
 import requests
+import os
+
+# Server URL configuration (defaults to localhost for local development)
+SERVER_URL = os.getenv("SERVER_URL", "http://localhost:5000")
 
 st.title("📁 Import de Documents")
 
@@ -35,7 +39,7 @@ if uploaded_file is not None:
 
                     # Send to backend
                     response = requests.post(
-                        "http://localhost:5000/upload",
+                        f"{SERVER_URL}/upload",
                         files=files,
                         timeout=60
                     )
@@ -69,7 +73,7 @@ st.subheader("Etat du serveur")
 
 if st.button("Vérifier l'état du serveur"):
     try:
-        response = requests.get("http://localhost:5000/health", timeout=5)
+        response = requests.get(f"{SERVER_URL}/health", timeout=5)
         if response.status_code == 200:
             health_data = response.json()
             st.success("✅ Le server est opérationnel")
@@ -77,6 +81,6 @@ if st.button("Vérifier l'état du serveur"):
         else:
             st.error("❌ Le serveur a répondu avec une erreur")
     except requests.exceptions.ConnectionError:
-        st.error("❌ Impossible de se connecter au serveur http://localhost:5000")
+        st.error(f"❌ Impossible de se connecter au serveur {SERVER_URL}")
     except Exception as e:
         st.error(f"❌ Erreur: {str(e)}")

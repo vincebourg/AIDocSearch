@@ -1,6 +1,10 @@
 import streamlit as st
 import requests
 from datetime import datetime
+import os
+
+# Server URL configuration (defaults to localhost for local development)
+SERVER_URL = os.getenv("SERVER_URL", "http://localhost:5000")
 
 st.title("Bot Assistant Droit des affaires")
 
@@ -33,7 +37,7 @@ def send_error_notification(error_details):
     print(f"Message utilisateur: {error_details['user_message']}")
     print(f"Détails de l'erreur: {error_details['error']}")
     print(f"Horodatage erreur: {error_details['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"URL Backend: http://localhost:5000/chat")
+    print(f"URL Backend: {SERVER_URL}/chat")
     print("=" * 60)
 
 
@@ -79,7 +83,7 @@ if prompt := st.chat_input("Que puis-je pour vous ?"):
 
     # Get bot response
     try:
-        response = requests.post("http://localhost:5000/chat", json={"message": prompt}, timeout=10)
+        response = requests.post(f"{SERVER_URL}/chat", json={"message": prompt}, timeout=10)
         if response.status_code == 200:
             bot_response = response.json().get("response", "No response")
 
